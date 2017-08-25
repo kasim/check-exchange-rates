@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import DatePicker from './DateComponent';
 import CurrencyDropDown from './CurrencyComponent';
 import moment from 'moment';
+import axios from 'axios'
 import logo from './logo.png';
 import './App.css';
 
@@ -28,6 +29,9 @@ class App extends Component {
     this.setState({
 	ratesDate : date.format("YYYY-MM-DD")
     })
+    axios.get('https://jsonplaceholder.typicode.com/posts/1')
+    .then( response => console.log(response) )
+    .catch( error => console.log(error) )
   }
 
   onTargetCurrencyChange(option) {
