@@ -18,6 +18,11 @@
   font-size: large;
 }
 
+.App-output {
+  font-size: 400%;
+  color: #dc143c;
+}
+
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

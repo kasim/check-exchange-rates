@@ -6,8 +6,10 @@ import axios from 'axios'
 import logo from './logo.png';
 import './App.css';
 
+const apiUrl = 'https://exchangeratesapi.herokuapp.com'
+
 const options = [
-  'USD', 'JPY', 'GBP', 'HKD'
+  'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN', 'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BRL', 'BSD', 'BTC', 'BTN', 'BWP', 'BYN', 'BZD', 'CAD', 'CDF', 'CHF', 'CLF', 'CLP', 'CNH', 'CNY', 'COP', 'CRC', 'CUC', 'CUP', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD', 'EGP', 'ERN', 'ETB', 'EUR', 'FJD', 'FKP', 'GBP', 'GEL', 'GGP', 'GHS', 'GIP', 'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HRK', 'HTG', 'HUF', 'IDR', 'ILS', 'IMP', 'INR', 'IQD', 'IRR', 'ISK', 'JEP', 'JMD', 'JOD', 'JPY', 'KES', 'KGS', 'KHR', 'KMF', 'KPW', 'KRW', 'KWD', 'KYD', 'KZT', 'LAK', 'LBP', 'LKR', 'LRD', 'LSL', 'LYD', 'MAD', 'MDL', 'MGA', 'MKD', 'MMK', 'MNT', 'MOP', 'MRO', 'MUR', 'MVR', 'MWK', 'MXN', 'MYR', 'MZN', 'NAD', 'NGN', 'NIO', 'NOK', 'NPR', 'NZD', 'OMR', 'PAB', 'PEN', 'PGK', 'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD', 'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP', 'SLL', 'SOS', 'SRD', 'SSP', 'STD', 'SVC', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS', 'UAH', 'UGX', 'USD', 'UYU', 'UZS', 'VEF', 'VND', 'VUV', 'WST', 'XAF', 'XAG', 'XAU', 'XCD', 'XDR', 'XOF', 'XPD', 'XPF', 'XPT', 'YER', 'ZAR', 'ZMW', 'ZWL'
 ]
 
 class App extends Component {
@@ -15,7 +17,7 @@ class App extends Component {
     super(props);
     this.state = {
 	options : options,
-	rateText : '1',
+	rateText : '',
 	ratesDate : moment().format("YYYY-MM-DD"),
 	baseCurrency: 'USD',
 	targetCurrency : 'HKD'
@@ -25,37 +27,41 @@ class App extends Component {
     this.onDateChange = this.onDateChange.bind(this)
   }
 
+  getRates = (date, base, curr) => {
+      if(date === moment().format("YYYY-MM-DD")){
+	axios.get(`${apiUrl}/api/latest/${curr}/base/${base}`)
+	.then( response => { this.setState({rateText: response.data.rates}) } )
+	.catch( error => console.log(error) )
+      } else {
+	axios.get(`${apiUrl}/api/historical/${date}/${curr}/base/${base}`)
+	.then( response => { this.setState({rateText: response.data.rates}) } )
+	.catch( error => console.log(error) )
+      }
+  }
+
   onDateChange(date) {
-    console.log('date changed ', date.format("YYYY-MM-DD"))
     this.setState({
 	ratesDate : date.format("YYYY-MM-DD")
     })
-    axios.get('https://jsonplaceholder.typicode.com/posts/1')
-    .then( response => { console.log(response.data.title); this.setState({rateText: response.data.id}) } )
-    .catch( error => console.log(error) )
+    this.getRates(date.format("YYYY-MM-DD"), this.state.baseCurrency, this.state.targetCurrency)
   }
 
   onTargetCurrencyChange(option) {
-    console.log('target selected ', option.value)
     this.setState({
-	targetCurrency : option
+	targetCurrency : option.value
     })
+    this.getRates(this.state.ratesDate, this.state.baseCurrency, option.value)
   }
 
   onBaseCurrencyChange(option) {
-    console.log('base selected ', option.value)
     this.setState({
-	baseCurrency : option
+	baseCurrency : option.value
     })
+    this.getRates(this.state.ratesDate, option.value, this.state.targetCurrency)
   }
 
   componentDidMount(node) {
-    console.log(this.state.ratesDate)
-    console.log(this.state.baseCurrency)
-    console.log(this.state.targetCurrency)
-    axios.get('https://jsonplaceholder.typicode.com/posts/1')
-	.then( response => { console.log(response.data.title); this.setState({rateText: response.data.title}) } )
-	.catch( error => console.log(error) )
+    this.getRates(this.state.ratesDate, this.state.baseCurrency, this.state.targetCurrency)
  }
 
   render() {
@@ -66,7 +72,10 @@ class App extends Component {
           <h2>International Exchange Rates Services</h2>
         </div>
 	<div>
-	  <div style={{ display: 'flex', margin: '100px' }}>
+	  <div style={{ display: 'flex', margin: '10px', paddingLeft: '10px' }}>
+	    Please select the target date, base currency and target currency to show the corresponding exchange rate:
+	  </div>
+	  <div style={{ display: 'flex', margin: '20px' }}>
 		<div style={{ height: '34px' }}>
 		Date :
 		</div>
@@ -98,7 +107,7 @@ class App extends Component {
 	</div>
 	<div>
 	  <div className="App-output" style={{ display: 'flex', margin: '100px' }}>
-	    {this.state.rateText}
+	    The exchange rate is : {this.state.rateText}
 	  </div>
 	</div>
       </div>
