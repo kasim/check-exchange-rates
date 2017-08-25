@@ -15,6 +15,7 @@ class App extends Component {
     super(props);
     this.state = {
 	options : options,
+	rateText : '1',
 	ratesDate : moment().format("YYYY-MM-DD"),
 	baseCurrency: 'USD',
 	targetCurrency : 'HKD'
@@ -30,7 +31,7 @@ class App extends Component {
 	ratesDate : date.format("YYYY-MM-DD")
     })
     axios.get('https://jsonplaceholder.typicode.com/posts/1')
-    .then( response => console.log(response) )
+    .then( response => { console.log(response.data.title); this.setState({rateText: response.data.id}) } )
     .catch( error => console.log(error) )
   }
 
@@ -47,6 +48,15 @@ class App extends Component {
 	baseCurrency : option
     })
   }
+
+  componentDidMount(node) {
+    console.log(this.state.ratesDate)
+    console.log(this.state.baseCurrency)
+    console.log(this.state.targetCurrency)
+    axios.get('https://jsonplaceholder.typicode.com/posts/1')
+	.then( response => { console.log(response.data.title); this.setState({rateText: response.data.title}) } )
+	.catch( error => console.log(error) )
+ }
 
   render() {
     return (
@@ -85,6 +95,11 @@ class App extends Component {
 		    />
 		</div>
 	    </div>
+	</div>
+	<div>
+	  <div className="App-output" style={{ display: 'flex', margin: '100px' }}>
+	    {this.state.rateText}
+	  </div>
 	</div>
       </div>
     );
